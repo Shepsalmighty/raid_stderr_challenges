@@ -1,6 +1,7 @@
 from sys import path_hooks
 from P_Q_syndrome import P_syndrome
 from P_Q_syndrome import Q_syndrome
+from P_Q_syndrome import P_recovery
 
 
 def read_raid6():
@@ -30,12 +31,11 @@ def read_raid6():
                 #recover with P syndrome
                 #checking P block has data, if greater than 0 data exists and we recover
                 if len(P_block) > 0:
-                    if len(block1) == 0 and len(block2) > 0:
-                        block1 = P_syndrome(block2,P_block)
-                    elif len(block2) == 0 and len(block1) > 0:
-                        block2 = P_syndrome(block1, P_block)
+                    P_recovery(P_block, block1, block2)
                 else:
                     pass #recover Q syndrome
+                    # drives_with_data = [elm for elm in [block1, block2, P_block, Q_block] if len(elm) > 0]
+                    # Q_syndrome(drives_with_data[0], drives_with_data[1])
 
                 print((block1 + block2).decode("utf-8"), end="")
             elif count % 4 == 1:
@@ -51,8 +51,8 @@ def read_raid6():
                         block1 = P_syndrome(block2, P_block)
                     elif len(block2) == 0 and len(block1) > 0:
                         block2 = P_syndrome(block1, P_block)
-                else:
-                    pass  # recover Q syndrome
+                else: pass
+                    # recover Q syndrome
 
                 print((block1 + block2).decode("utf-8"), end="")
             elif count % 4 == 2:

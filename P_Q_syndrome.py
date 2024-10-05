@@ -5,6 +5,32 @@ def P_syndrome(block1, block2):
 
     return bytes(recovered_data)
 
+
+# def P_recovery(block1, block2, P_block):
+#     assert len(P_block) > 0, "P_block empty"
+#     if len(block1) == 0 and len(block2) > 0:
+#         block1 = P_syndrome(block2, P_block)
+#
+#     elif len(block2) == 0 and len(block1) > 0:
+#         block2 = P_syndrome(block1, P_block)
+#
+#     return block1, block2
+
+def P_recovery(block1, block2, P_block):
+    assert len(P_block) > 0, "P_block empty"
+    recovered_data = []
+    if len(block1) == 0 and len(block2) > 0:
+        # block1 = P_syndrome(block2, P_block)
+        for a, b in zip(P_block, block2):
+            recovered_data.append(int(a) ^ int(b))
+
+    elif len(block2) == 0 and len(block1) > 0:
+        # block2 = P_syndrome(block1, P_block)
+        for a, b in zip(block1, P_block):
+            recovered_data.append(int(a) ^ int(b))
+
+    return bytes(recovered_data)
+
 def Q_syndrome(block1, block2):
     recovered_data = []
     for a, b in zip(block1, block2):

@@ -13,6 +13,18 @@ if count % 4 == 0:
             block2 = P_syndrome(block1, P_block)
     else:
         # recover Q syndrome
+        drives_with_data = [elm for elm in [block1, block2, P_block, Q_block] if len(elm) > 0]
         if sum(len(elm) == 0 for elm in [block1, block2, P_block, Q_block]) <= 2:
+
+            [len(elm) == 0 for elm in [block1, block2, P_block, Q_block] if len(elm) > 0]
+            # [elm for elm in [block1, block2, P_block, Q_block] if len(elm) > 0]
+
+            # for thing in [block1, block2, P_block, Q_block]:
+            #     drives = []
+            #     if thing == 0:
+            #         drives.append(thing)
+            #     return drives
+
+
 
 
