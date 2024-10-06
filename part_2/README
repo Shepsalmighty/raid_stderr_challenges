@@ -1,0 +1,15 @@
+Disk drives are "block devices". That means you can't read them one byte at a time, but have to read a whole sector (normally 512 bytes or 4 kilobytes) instead.
+
+Since the OS needs to read at least 512 bytes from the drive, a stripe size of only 16 bytes doesn't really make sense and a larger stripe size is used, often one that covers multiple sectors. 512 kilobytes are not uncommon.
+
+Often when a single sector fails, you might still be able to read the following sectors. That is a bit difficult to show when the "drives" are files. How do you make bytes in the middle of a file unreadable while keeping the bytes before and after readable?
+
+That's why the errors in the first part of the challenge acted the way they did. When some data couldn't be read from a "drive", the rest of the "drive" would be unreadable too.
+
+In this part of the challenge the data from the "drives" are instead stored in a bunch of files, each named after the drive the data was recovered from and the sector number of that drive, e.g. "sectors/sda.sector000" was recovered from the first sector (# 000) of "sda" and "sectors/sda.sector001" was recovered from the following sector of "sda". Each sector is 512 bytes.
+
+As you can see "sectors/sda.sector003" is missing. That sector couldn't be recovered, but "sectors/sda.sector004" could.
+
+The data stored on this RAID-6 are binary data, so it can be a bit difficult to figure out the stripe size just by look at the files, but I can tell you that the stripe size is 2^n sectors, where each sector is 512 bytes.
+
+Save the binary data from the RAID-6 and continue to the next part.
