@@ -20,8 +20,9 @@ def read_raid6():
                len(sdc := sdc_file.read(16)) +
                len(sdd := sdd_file.read(16)) != 0):
 
-    #TODO move the if blocks into 1 function and modulo the P/Q/1/2 blocks as args
 
+            # to read the file bytes in the correct order we do (count % 4) such that block1 and block2 always contain
+            # the correct bytes in their reading order
             if count % 4 == 0:
                 P_block = sdd
                 Q_block = sda
@@ -33,7 +34,6 @@ def read_raid6():
                 Q_block = sdd
                 block1 = sda
                 block2 = sdb
-
 
             elif count % 4 == 2:
                 P_block = sdb
