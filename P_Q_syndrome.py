@@ -67,6 +67,7 @@ def recover_all(block1, block2, P_block, Q_block):
         return block1, bytes(recovered_data)
 
     #if missing both data blocks, we must Q recover D2 (block2) first, and then we can P recover D1 (block1)
+    #see also Reed Solomon algorithm https://anadoxin.org/blog/error-recovery-in-raid6.html/
     if len(block1) == 0 and len(block2) == 0:
         recovered_block2 = bytearray()
         recovered_block1 = bytearray()
