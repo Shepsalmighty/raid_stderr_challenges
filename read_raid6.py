@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from sys import path_hooks
 
-from P_Q_syndrome import recover_all
+from P_Q_syndrome import recover_all_pt1
 
 
 def read_raid6():
@@ -47,7 +47,7 @@ def read_raid6():
                 block1 = sdc
                 block2 = sdd
 
-            block1, block2 = recover_all(block1, block2, P_block, Q_block)
+            block1, block2 = recover_all_pt1(block1, block2, P_block, Q_block)
             print((block1 + block2).decode("utf-8"), end="")
             count += 1
 
