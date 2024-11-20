@@ -73,15 +73,20 @@ def multiply(var, byte):
         return result
 
 def divide(var1, var2):
-    if var2 == 1:
-        return var1
-    # if var2 == 2:
-    #    return var1 /2
+    #drive 1 divides by 1, redundant but keeping it for consistency
+    # if var2 == 1:
+    #     return var1 /1
 
-    result =  var1 / var2
-    if result > 255:
-        result = result ^ 285
-    return result
+    # var2 = drive 2, we divide by 2, but have to check that var1 (the byte) is even. If odd, XOR by 285, check for overflow and divide
+    # if var2 == 2:
+    #     if var1 % 2 == 1:
+    #         var1 = var1 ^ 285
+    #     return (var1 / 2)
+
+    for n in range(256):
+        if multiply(var2, n) == var1:
+            return n
+
 
 def Q_syndrome_pt2(block1, block2, block3, block4, block5, block6):
     recovered_data = []
@@ -150,7 +155,7 @@ def recover_all_pt1(block1, block2, P_block, Q_block):
         return recovered_block1, recovered_block2
 
 def recover_all_pt2(block1, block2, block3, block4, block5 ,block6, P_block, Q_block):
-    #returns block1 and block2 if both have data
+    #returns all blocks if they have data
     if len(block1) > 0 and\
             len(block2) > 0 and\
             len(block3) > 0 and\
@@ -244,10 +249,10 @@ def recover_all_pt2(block1, block2, block3, block4, block5 ,block6, P_block, Q_b
     #1st case block1 and P_block missing
     if len(block1) == 0 and len(P_block) == 0:
         not_really_Q = Q_syndrome_pt2([0 for _ in range(len(Q_block))],block2, block3, block4, block5, block6)
-        block1 = []
+        recovered_data = []
         for a, b in zip(not_really_Q, Q_block):
-            block1.append(a ^ b)
-        return bytes(block1), block2, block3, block4, block5, block6
+            recovered_data.append(divide((a ^ b), 1))
+        return bytes(recovered_data), block2, block3, block4, block5, block6
         # recovered_data = []
         # for a, b, c, d, e, f in zip(P_block, block1, block2, block3, block4, block5):
         #     recovered_data.append(int(a) ^ (2* int(b) ^(3*int(c)) ^(4*int(d)) ^(5*int(e)) ^(6*(int(f)))))
@@ -256,11 +261,66 @@ def recover_all_pt2(block1, block2, block3, block4, block5 ,block6, P_block, Q_b
         # return bytes(recovered_data), block2, block3, block4, block5, block6
     #2nd case block2 and P_block missing
     if len(block2) == 0 and len(P_block) == 0:
+        not_really_Q = Q_syndrome_pt2(block1, [0 for _ in range(len(Q_block))], block3, block4, block5, block6)
         recovered_data = []
-        for a, b, c, d, e, f in zip(Q_block, block1, block3, block4, block5, block6):
-            recovered_data.append((int(a) ^ int(b) ^ (3*int(c)) ^(4*int(d)) ^(5*int(e)) ^(6*(int(f)) //2)))
-        return bytes(recovered_data), block1, block3, block4, block5, block6
-    #TODO: add all 6 cases of missing datablock(x) and P_block
+        for a, b in zip(not_really_Q, Q_block):
+            recovered_data.append(divide((a ^ b), 2))
+        return block1, bytes(recovered_data), block3, block4, block5, block6
+
+    # 3rd case block3 and P_block missing
+    if len(block3) == 0 and len(P_block) == 0:
+        not_really_Q = Q_syndrome_pt2(block1, block2, [0 for _ in range(len(Q_block))], block4, block5, block6)
+        recovered_data = []
+        for a, b in zip(not_really_Q, Q_block):
+            recovered_data.append(divide((a ^ b), 3))
+        return block1, block2, bytes(recovered_data), block4, block5, block6
+
+    # 4th case block4 and P_block missing
+    if len(block4) == 0 and len(P_block) == 0:
+        not_really_Q = Q_syndrome_pt2(block1, block2, block3, [0 for _ in range(len(Q_block))], block5, block6)
+        recovered_data = []
+        for a, b in zip(not_really_Q, Q_block):
+            recovered_data.append(divide((a ^ b), 4))
+        return block1, block2, block3, bytes(recovered_data), block5, block6
+
+    # 5th case block5 and P_block missing
+    if len(block5) == 0 and len(P_block) == 0:
+        not_really_Q = Q_syndrome_pt2(block1, block2, block3, block4, [0 for _ in range(len(Q_block))], block6)
+        recovered_data = []
+        for a, b in zip(not_really_Q, Q_block):
+            recovered_data.append(divide((a ^ b), 5))
+        return block1, block2, block3, block4, bytes(recovered_data), block6
+
+    # 6th case block6 and P_block missing
+    if len(block6) == 0 and len(P_block) == 0:
+        not_really_Q = Q_syndrome_pt2(block1, block2, block3, block4, block5, [0 for _ in range(len(Q_block))])
+        recovered_data = []
+        for a, b in zip(not_really_Q, Q_block):
+            recovered_data.append(divide((a ^ b), 6))
+        return block1, block2, block3, block4, block5 , bytes(recovered_data)
+
+    # for a,b,c,d,e,f in zip(block1, block2, block3, block4, block5, block6):
+
+    #TODO: make this function not fucking suck
+def two_blocks_missing(block1, block2, block3, block4, block5 ,block6):
+    count = 0
+    if len(block1) == 0:
+        count += 1
+    if len(block2) == 0:
+        count += 1
+    if len(block3) == 0:
+        count += 1
+    if len(block4) == 0:
+        count += 1
+    if len(block5) == 0:
+        count += 1
+    if len(block6) == 0:
+        count += 1
+    if count == 2:
+        return "missing data here"
+    else:
+        count = 0
+
 
     #if missing both data blocks, we must Q recover D2 (block2) first, and then we can P recover D1 (block1)
     #see also Reed Solomon algorithm https://anadoxin.org/blog/error-recovery-in-raid6.html/
