@@ -23,66 +23,57 @@ def Q_syndrome(block1, block2):
         a = 2 ** 0 * a
         b = 2 ** 1 * b
         # hex 285 == 0x11D but 285 is easier for me to read
-        if a > 255:
-            a = a ^ 285
-        if b > 255:
-            b = b ^ 285
+        if a > 0xFF:
+            a = a ^ 0x11D
+        if b > 0xFF:
+            b = b ^ 0x11D
         recovered_data.append((int(a) ^ int(b)))
     return bytes(recovered_data)
 
 
 def multiply(var, byte):
-    # hex 285 == 0x11D but 285 is easier for me to read
+    #INFO: hex 255 == 0xFF and hex 285 == 0x11D
     if var == 1:
         return byte
     if var == 2:
         result = byte * 2
-        if result > 255:
-           result = result ^ 285
+        if result > 0xFF:
+           result = result ^ 0x11D
         return result
     if var == 3:
         result = byte * 2
-        if result > 255:
-            result = result ^ 285
+        if result > 0xFF:
+            result = result ^ 0x11D
         return result ^ byte
     if var == 4:
         result = byte * 2
-        if result > 255:
-            result = result ^ 285
+        if result > 0xFF:
+            result = result ^ 0x11D
         result = result * 2
-        if result > 255:
-           result = result ^ 285
+        if result > 0xFF:
+           result = result ^ 0x11D
         return result
     if var == 5:
         result = byte * 2
-        if result > 255:
-            result = result ^ 285
+        if result > 0xFF:
+            result = result ^ 0x11D
         result = result * 2
-        if result > 255:
-           result = result ^ 285
+        if result > 0xFF:
+           result = result ^ 0x11D
         result = result ^ byte
         return result
     if var == 6:
         result = byte * 2
-        if result > 255:
-            result = result ^ 285
+        if result > 0xFF:
+            result = result ^ 0x11D
         result = result ^ byte
         result = result * 2
-        if result > 255:
-            result = result ^ 285
+        if result > 0xFF:
+            result = result ^ 0x11D
         return result
 
 def divide(var1, var2):
     #drive 1 divides by 1, redundant but keeping it for consistency
-    # if var2 == 1:
-    #     return var1 /1
-
-    # var2 = drive 2, we divide by 2, but have to check that var1 (the byte) is even. If odd, XOR by 285, check for overflow and divide
-    # if var2 == 2:
-    #     if var1 % 2 == 1:
-    #         var1 = var1 ^ 285
-    #     return (var1 / 2)
-
     for n in range(256):
         if multiply(var2, n) == var1:
             return n
@@ -302,24 +293,7 @@ def recover_all_pt2(block1, block2, block3, block4, block5 ,block6, P_block, Q_b
     # for a,b,c,d,e,f in zip(block1, block2, block3, block4, block5, block6):
 
     #TODO: make this function not fucking suck
-def two_blocks_missing(block1, block2, block3, block4, block5 ,block6):
-    count = 0
-    if len(block1) == 0:
-        count += 1
-    if len(block2) == 0:
-        count += 1
-    if len(block3) == 0:
-        count += 1
-    if len(block4) == 0:
-        count += 1
-    if len(block5) == 0:
-        count += 1
-    if len(block6) == 0:
-        count += 1
-    if count == 2:
-        return "missing data here"
-    else:
-        count = 0
+
 
 
     #if missing both data blocks, we must Q recover D2 (block2) first, and then we can P recover D1 (block1)
@@ -338,3 +312,20 @@ def two_blocks_missing(block1, block2, block3, block4, block5 ,block6):
                 print("PANIC!!!!")
         return recovered_block1, recovered_block2
 
+def number_missing_drives(block1, block2, block3, block4, block5 ,block6):
+    stripe_count = 0
+    count = 0
+    if len(block1) == 0:
+        count += 1
+    if len(block2) == 0:
+        count += 1
+    if len(block3) == 0:
+        count += 1
+    if len(block4) == 0:
+        count += 1
+    if len(block5) == 0:
+        count += 1
+    if len(block6) == 0:
+        count += 1
+
+    return count
